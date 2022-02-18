@@ -17,11 +17,26 @@
  */
 struct list_head *q_new()
 {
-    return NULL;
+    struct list_head *head = malloc(sizeof(struct list_head));
+    if (!head) {
+        return NULL;
+    }
+    INIT_LIST_HEAD(head);
+    return head;
 }
 
 /* Free all storage used by queue */
-void q_free(struct list_head *l) {}
+void q_free(struct list_head *l)
+{
+    if (!l) {
+        return;
+    }
+    element_t *e, *safe;
+    list_for_each_entry_safe (e, safe, l, list) {
+        q_release_element(e);
+    }
+    free(l);
+}
 
 /*
  * Attempt to insert element at head of queue.
@@ -32,6 +47,13 @@ void q_free(struct list_head *l) {}
  */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    element_t *e = malloc(sizeof(element_t));
+    if (!e) {
+        return false;
+    }
+    e->value = strdup(s);
+    list_add(&e->list, head);
+
     return true;
 }
 
@@ -44,6 +66,13 @@ bool q_insert_head(struct list_head *head, char *s)
  */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    element_t *e = malloc(sizeof(element_t));
+    if (!e) {
+        return false;
+    }
+    e->value = strdup(s);
+    list_add_tail(&e->list, head);
+
     return true;
 }
 
@@ -112,6 +141,18 @@ int q_size(struct list_head *head)
 bool q_delete_mid(struct list_head *head)
 {
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
+    if (!head) {
+        return NULL;
+    }
+
+    struct list_head *fast;
+    struct list_head **idir = &head;
+    for (fast = head; fast && fast->next; fast = fast->next->next) {
+        idir = &(*idir)->next;
+    }
+    (*idir)->prev->next = (*idir)->next;
+    (*idir)->next->prev = (*idir)->prev;
+    free(*idir);
     return true;
 }
 
