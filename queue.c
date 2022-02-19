@@ -84,7 +84,7 @@ bool q_insert_tail(struct list_head *head, char *s)
  * (up to a maximum of bufsize-1 characters, plus a null terminator.)
  *
  * NOTE: "remove" is different from "delete"
- * The space used by the list element and the string should not be freed.
+ * The used by the list element and the string should not be freed.
  * The only thing "remove" need to do is unlink it.
  *
  * REF:
@@ -92,7 +92,16 @@ bool q_insert_tail(struct list_head *head, char *s)
  */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || list_empty(head)) {
+        return NULL;
+    }
+    element_t *e = list_first_entry(head, element_t, list);
+    list_del(head->next);
+    if (sp) {
+        sp = strncpy(sp, e->value, bufsize);
+        sp[bufsize - 1] = '\0';
+    }
+    return e;
 }
 
 /*
@@ -101,7 +110,16 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
  */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    return NULL;
+    if (!head || list_empty(head)) {
+        return NULL;
+    }
+    element_t *e = list_last_entry(head, element_t, list);
+    list_del(head->prev);
+    if (sp) {
+        sp = strncpy(sp, e->value, bufsize);
+        sp[bufsize - 1] = '\0';
+    }
+    return e;
 }
 
 /*
