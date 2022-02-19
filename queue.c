@@ -164,10 +164,12 @@ bool q_delete_mid(struct list_head *head)
     }
 
     struct list_head *fast;
-    struct list_head **idir = &head;
-    for (fast = head; fast && fast->next; fast = fast->next->next) {
+    struct list_head **idir = &head->next;
+    for (fast = head->next; fast == head || fast->next == head;
+         fast = fast->next->next) {
         idir = &(*idir)->next;
     }
+
     element_t *e = list_entry(*idir, element_t, list);
     list_del(*idir);
     free(e);
