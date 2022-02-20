@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,7 +49,7 @@ void q_free(struct list_head *l)
 bool q_insert_head(struct list_head *head, char *s)
 {
     element_t *e = malloc(sizeof(element_t));
-    if (!e) {
+    if (!e || !head) {
         return false;
     }
     e->value = strdup(s);
@@ -67,7 +68,7 @@ bool q_insert_head(struct list_head *head, char *s)
 bool q_insert_tail(struct list_head *head, char *s)
 {
     element_t *e = malloc(sizeof(element_t));
-    if (!e) {
+    if (!e || !head) {
         return false;
     }
     e->value = strdup(s);
@@ -229,12 +230,59 @@ void q_reverse(struct list_head *head)
     head->prev = l;
 }
 
+struct list_head *mergeTwoLists(struct list_head *l1, struct list_head *l2)
+{
+    struct list_head *head = NULL, **ptr = &head, **node = NULL;
+    for (node = NULL; l1 && l2; *node = (*node)->next) {
+        node = strcmp(list_entry(l1, element_t, list)->value,
+                      list_entry(l2, element_t, list)->value) < 0
+                   ? &l1
+                   : &l2;
+        *ptr = *node;
+        ptr = &(*ptr)->next;
+    }
+    *ptr = (struct list_head *) ((uintptr_t) l1 | (uintptr_t) l2);
+    return head;
+}
+
+struct list_head *mergesort(struct list_head *head)
+{
+    if (!head || !head->next) {
+        return head;
+    }
+    struct list_head *fast, *mid;
+    mid = head->next;
+    for (fast = head->next; fast == head || fast->next == head;
+         fast = fast->next->next) {
+        mid = mid->next;
+    }
+    struct list_head *left, *right;
+    mid = mid->next;
+    mid->prev = NULL;
+
+    left = mergesort(head);
+    right = mergesort(mid);
+
+    return mergeTwoLists(left, right);
+}
+
 /*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void q_sort(struct list_head *head) {}
+void q_sort(struct list_head *head)
+{
+    if ((!head || list_empty(head)) || list_is_singular(head)) {
+        return;
+    }
 
-
-// void mergesort(struct list_head *l) {}
+    head->prev->next = NULL;
+    head->next = mergesort(head);
+    struct list_head *l, *prev = head;
+    for (l = head; l->next != NULL; l = l->next) {
+        l->prev = prev;
+        prev = l;
+    }
+    l->next = head;
+}
