@@ -234,10 +234,10 @@ struct list_head *mergeTwoLists(struct list_head *l1, struct list_head *l2)
 {
     struct list_head *head = NULL, **ptr = &head, **node = NULL;
     for (node = NULL; l1 && l2; *node = (*node)->next) {
-        node = strcmp(list_entry(l1, element_t, list)->value,
-                      list_entry(l2, element_t, list)->value) < 0
-                   ? &l1
-                   : &l2;
+        element_t *e1 = list_entry(l1, element_t, list);
+        element_t *e2 = list_entry(l2, element_t, list);
+
+        node = strcmp(e1->value, e2->value) < 0 ? &l1 : &l2;
         *ptr = *node;
         ptr = &(*ptr)->next;
     }
@@ -250,18 +250,17 @@ struct list_head *mergesort(struct list_head *head)
     if (!head || !head->next) {
         return head;
     }
-    struct list_head *fast, *mid;
-    mid = head->next;
-    for (fast = head->next; fast == head || fast->next == head;
-         fast = fast->next->next) {
-        mid = mid->next;
+    struct list_head *fast, *slow;
+    slow = head;
+    for (fast = head->next; fast && fast->next; fast = fast->next->next) {
+        slow = slow->next;
     }
     struct list_head *left, *right;
-    mid = mid->next;
-    mid->prev = NULL;
+    right = slow->next;
+    slow->next = NULL;
 
     left = mergesort(head);
-    right = mergesort(mid);
+    right = mergesort(right);
 
     return mergeTwoLists(left, right);
 }
@@ -278,9 +277,9 @@ void q_sort(struct list_head *head)
     }
 
     head->prev->next = NULL;
-    head->next = mergesort(head);
+    head->next = mergesort(head->next);
     struct list_head *l, *prev = head;
-    for (l = head; l->next != NULL; l = l->next) {
+    for (l = head->next; l->next != NULL; l = l->next) {
         l->prev = prev;
         prev = l;
     }
