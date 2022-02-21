@@ -56,6 +56,10 @@ bool q_insert_head(struct list_head *head, char *s)
         return false;
     }
     e->value = strdup(s);
+    if (!e->value) {
+        free(e);
+        return false;
+    }
     list_add(&e->list, head);
 
     return true;
@@ -78,6 +82,10 @@ bool q_insert_tail(struct list_head *head, char *s)
         return false;
     }
     e->value = strdup(s);
+    if (!e->value) {
+        free(e);
+        return false;
+    }
     list_add_tail(&e->list, head);
 
     return true;
