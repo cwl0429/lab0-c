@@ -636,6 +636,7 @@ bool do_sort(int argc, char *argv[])
         }
     }
 
+
     show_queue(3);
     return ok && !error_check();
 }

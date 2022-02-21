@@ -244,18 +244,13 @@ void q_swap(struct list_head *head)
  */
 void q_reverse(struct list_head *head)
 {
-    if (!head) {
+    if (!head || list_empty(head)) {
         return;
     }
     struct list_head *l, *safe;
     list_for_each_safe (l, safe, head) {
-        l->next = l->prev;
-        l->prev = safe;
+        list_move(l, head);
     }
-
-    l = head->next;
-    head->next = head->prev;
-    head->prev = l;
 }
 
 struct list_head *mergeTwoLists(struct list_head *l1, struct list_head *l2)
