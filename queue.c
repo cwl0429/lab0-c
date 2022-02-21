@@ -48,8 +48,11 @@ void q_free(struct list_head *l)
  */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    if (!head) {
+        return false;
+    }
     element_t *e = malloc(sizeof(element_t));
-    if (!e || !head) {
+    if (!e) {
         return false;
     }
     e->value = strdup(s);
@@ -67,8 +70,11 @@ bool q_insert_head(struct list_head *head, char *s)
  */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    if (!head) {
+        return false;
+    }
     element_t *e = malloc(sizeof(element_t));
-    if (!e || !head) {
+    if (!e) {
         return false;
     }
     e->value = strdup(s);
@@ -166,14 +172,14 @@ bool q_delete_mid(struct list_head *head)
 
     struct list_head *fast;
     struct list_head **idir = &head->next;
-    for (fast = head->next; fast == head || fast->next == head;
+    for (fast = head->next; fast != head && fast->next != head;
          fast = fast->next->next) {
         idir = &(*idir)->next;
     }
 
     element_t *e = list_entry(*idir, element_t, list);
     list_del(*idir);
-    free(e);
+    q_release_element(e);
     return true;
 }
 
@@ -189,6 +195,20 @@ bool q_delete_mid(struct list_head *head)
 bool q_delete_dup(struct list_head *head)
 {
     // https://leetcode.com/problems/remove-duplicates-from-sorted-list-ii/
+    if (!head) {
+        return false;
+    }
+
+    element_t *e, *safe;
+    list_for_each_entry_safe (e, safe, head, list) {
+        if (e->list.next == head) {
+            break;
+        }
+        if (strcmp(e->value, safe->value) == 0) {
+            list_del(&e->list);
+            q_release_element(e);
+        }
+    }
     return true;
 }
 
@@ -284,4 +304,5 @@ void q_sort(struct list_head *head)
         prev = l;
     }
     l->next = head;
+    head->prev = l;
 }
