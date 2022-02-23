@@ -161,6 +161,8 @@ int q_size(struct list_head *head)
     struct list_head *li;
     list_for_each (li, head)
         len++;
+    // for (li = head->prev; li != head; li = li->prev)
+    //     len++;
     return len;
 }
 
@@ -252,7 +254,6 @@ void q_reverse(struct list_head *head)
         list_move(l, head);
     }
 }
-
 struct list_head *mergeTwoLists(struct list_head *l1, struct list_head *l2)
 {
     struct list_head *head = NULL, **ptr = &head, **node = NULL;
@@ -306,6 +307,7 @@ void q_sort(struct list_head *head)
         l->prev = prev;
         prev = l;
     }
+    l->prev = prev;
     l->next = head;
     head->prev = l;
 }
